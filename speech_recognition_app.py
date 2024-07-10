@@ -1,6 +1,5 @@
 import streamlit as st
 import speech_recognition as sr
-import time
 
 def transcribe_speech(api, language):
     # Initialize recognizer class
@@ -39,22 +38,21 @@ def main():
 
     st.write("Click on the microphone to start speaking:")
 
-    # add a button to trigger speech recognition
+    # Initialize session state to hold the transcription text
+    if 'text' not in st.session_state:
+        st.session_state.text = ""
+
+    # Add a button to trigger speech recognition
     if st.button("Start Recording"):
-        text = transcribe_speech(api, language)
-        st.write("Transcription: ", text)
+        st.session_state.text = transcribe_speech(api, language)
+        st.write("Transcription: ", st.session_state.text)
+
+    # Display transcription and save button only if there's text
+    if st.session_state.text:
         if st.button("Save Transcription"):
             with open("transcription.txt", "w") as f:
-                f.write(text)
+                f.write(st.session_state.text)
             st.success("Transcription saved to transcription.txt")
-
-    if st.button("Pause"):
-        st.info("Recording paused. Click 'Resume' to continue.")
-        time.sleep(5)  # Simulate pause
-    
-    if st.button("Resume"):
-        text = transcribe_speech(api, language)
-        st.write("Transcription: ", text)
 
 if __name__ == "__main__":
     main()
